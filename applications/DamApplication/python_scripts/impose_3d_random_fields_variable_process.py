@@ -20,7 +20,7 @@ class Impose3dRandomFieldsVariableProcess(Process):
         min_value = settings["min_value"].GetDouble()
         max_value = settings["max_value"].GetDouble()
         var = settings["variance"].GetDouble()
-        corr_length = settings["corr_length"].GetDouble()
+        corr_length = settings["corr_length"].GetInt()
 
         # Gaussian random field with exponential covariance
         model = Gaussian(dim = 3, var = var, len_scale = corr_length)
