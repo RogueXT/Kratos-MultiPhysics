@@ -429,6 +429,7 @@ protected:
     double mPlasticDissipation = 0.0;
     double mThreshold = 0.0;
     Vector mPlasticStrain = ZeroVector(VoigtSize);
+    Vector mPreviousStrain = ZeroVector(VoigtSize);
 
     ///@}
     ///@name Private Operators

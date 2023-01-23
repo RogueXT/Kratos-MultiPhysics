@@ -358,6 +358,7 @@ void GenericSmallStrainIsotropicPlasticity<TConstLawIntegratorType>::FinalizeMat
     mPlasticDissipation = plastic_dissipation;
     noalias(mPlasticStrain) = plastic_strain;
     mThreshold = threshold;
+    noalias(mPreviousStrain) = r_strain_vector;
 }
 
 /***********************************************************************************/
@@ -471,10 +472,12 @@ Vector& GenericSmallStrainIsotropicPlasticity<TConstLawIntegratorType>::GetValue
         for (std::size_t i=0; i < VoigtSize; ++i)
             rValue[i + 1] = mPlasticStrain[i];
         return rValue;
-    }
-    if (rThisVariable == PLASTIC_STRAIN_VECTOR) {
+    } else if (rThisVariable == PLASTIC_STRAIN_VECTOR) {
         rValue.resize(VoigtSize, false);
         noalias(rValue) = mPlasticStrain;
+    } else if (rThisVariable == PREVIOUS_STRAIN) {
+        rValue.resize(VoigtSize, false);
+        noalias(rValue) = mPreviousStrain;
     } else {
         return BaseType::GetValue(rThisVariable, rValue);
     }

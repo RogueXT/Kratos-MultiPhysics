@@ -152,25 +152,32 @@ public:
 
         // Calculate the perturbation
         double pertubation = PerturbationThreshold;
-        if (rValues.GetMaterialProperties().Has(PERTURBATION_SIZE)) {
-            pertubation = rValues.GetMaterialProperties()[PERTURBATION_SIZE];
-            if (pertubation == -1.0)
-                pertubation = std::sqrt(tolerance);
-        } else {
-            for (IndexType i_component = 0; i_component < num_components; ++i_component) {
-                double component_perturbation;
-                CalculatePerturbation(unperturbed_strain_vector_gp, i_component, component_perturbation);
-                pertubation = std::max(component_perturbation, pertubation);
-            }
-            // We check that the perturbation has a threshold value of PerturbationThreshold
-            if (ConsiderPertubationThreshold && pertubation < PerturbationThreshold) pertubation = PerturbationThreshold;
-        }
+        // if (rValues.GetMaterialProperties().Has(PERTURBATION_SIZE)) {
+        //     pertubation = rValues.GetMaterialProperties()[PERTURBATION_SIZE];
+        //     if (pertubation == -1.0)
+        //         pertubation = std::sqrt(tolerance);
+        // } else {
+        //     for (IndexType i_component = 0; i_component < num_components; ++i_component) {
+        //         double component_perturbation;
+        //         CalculatePerturbation(unperturbed_strain_vector_gp, i_component, component_perturbation);
+        //         pertubation = std::max(component_perturbation, pertubation);
+        //     }
+        //     // We check that the perturbation has a threshold value of PerturbationThreshold
+        //     if (ConsiderPertubationThreshold && pertubation < PerturbationThreshold) pertubation = PerturbationThreshold;
+        // }
 
         // Loop over components of the strain
         Vector& r_perturbed_strain = rValues.GetStrainVector();
         Vector& r_perturbed_integrated_stress = rValues.GetStressVector();
+        // KRATOS_WATCH(unperturbed_strain_vector_gp)
+        Vector previous_strain(6);
+        pConstitutiveLaw->GetValue(PREVIOUS_STRAIN, previous_strain);
+        const Vector delta_strain = unperturbed_strain_vector_gp - previous_strain;
         if (ApproximationOrder == 1) {
             for (IndexType i_component = 0; i_component < num_components; ++i_component) {
+
+                // We compute the perturbation
+                pertubation = (std::abs(delta_strain[i_component] > tolerance)) ? PerturbationCoefficient1 * delta_strain[i_component] : PerturbationThreshold;
 
                 // Apply the perturbation
                 PerturbateStrainVector(r_perturbed_strain, unperturbed_strain_vector_gp, pertubation, i_component);
