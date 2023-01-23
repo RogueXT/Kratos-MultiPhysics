@@ -356,7 +356,7 @@ void GenericSmallStrainIsotropicPlasticity<TConstLawIntegratorType>::FinalizeMat
     }
 
     mPlasticDissipation = plastic_dissipation;
-    mPlasticStrain = plastic_strain;
+    noalias(mPlasticStrain) = plastic_strain;
     mThreshold = threshold;
 }
 
