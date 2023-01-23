@@ -10,7 +10,7 @@ def Factory(settings, Model):
         raise Exception("expected input shall be a Parameters object, encapsulating a json string")
     return Impose3dRandomFieldsVariableProcess(Model, settings["Parameters"])
 
-class Impose3dRandomFieldsVariableProcess(Process):
+class Impose3dRandomFieldsVariableProcess(KM.Process):
     def __init__(self, Model, settings ):
 
         KM.Process.__init__(self)
