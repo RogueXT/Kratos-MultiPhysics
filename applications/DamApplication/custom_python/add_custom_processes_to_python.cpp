@@ -31,6 +31,7 @@
 #include "custom_processes/dam_westergaard_condition_load_process.hpp"
 #include "custom_processes/dam_nodal_young_modulus_process.hpp"
 #include "custom_processes/dam_input_table_nodal_young_modulus_process.hpp"
+#include "custom_processes/dam_random_fields_variable_process.hpp"
 #include "custom_processes/dam_chemo_mechanical_aging_young_process.hpp"
 #include "custom_processes/dam_temperature_by_device_process.hpp"
 #include "custom_processes/dam_added_mass_condition_process.hpp"
@@ -142,6 +143,11 @@ void  AddCustomProcessesToPython(pybind11::module& m)
     // DamInputTableNodalYoungModulusProcess
     py::class_< DamInputTableNodalYoungModulusProcess, DamInputTableNodalYoungModulusProcess::Pointer, Process >
     (m, "DamInputTableNodalYoungModulusProcess")
+    .def(py::init < ModelPart&, TableType&, Parameters&>());
+
+    // DamRandomFieldsVariableProcess
+    py::class_< DamRandomFieldsVariableProcess, DamRandomFieldsVariableProcess::Pointer, Process >
+    (m, "DamRandomFieldsVariableProcess")
     .def(py::init < ModelPart&, TableType&, Parameters&>());
 
     // Grouting Reference Temperature Process
