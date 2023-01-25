@@ -189,11 +189,6 @@ protected:
     template< class TValueType >
     void CalculateOutputValues( std::vector<TValueType>& rOutput, const std::vector<TValueType>& GPValues );
 
-    void InterpolateOutputDoubles( std::vector<double>& rOutput, const std::vector<double>& GPValues );
-
-    template< class TValueType >
-    void InterpolateOutputValues( std::vector<TValueType>& rOutput, const std::vector<TValueType>& GPValues );
-
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 private:

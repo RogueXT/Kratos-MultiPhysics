@@ -43,11 +43,12 @@ void JointBilinearCohesive2DLaw::ComputeEquivalentStrain(ConstitutiveLawVariable
 
     if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
     {
-		rVariables.EquivalentStrain = std::abs(StrainVector[1]) / rVariables.CriticalDisplacement;
+        rVariables.EquivalentStrain = std::sqrt(StrainVector[0]*StrainVector[0]+
+                                                StrainVector[1]*StrainVector[1])/rVariables.CriticalDisplacement;
 	}
 	else // Contact between interfaces
 	{
-		rVariables.EquivalentStrain = std::abs(StrainVector[0]) / rVariables.CriticalDisplacementTangent;
+        rVariables.EquivalentStrain = std::abs(StrainVector[0])/rVariables.CriticalDisplacement;
 	}
 }
 
@@ -61,59 +62,58 @@ void JointBilinearCohesive2DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
 
     if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
     {
-        double aux_param = (1.0 - mStateVariable) / ((1.0 - rVariables.DamageThreshold) * mStateVariable * rVariables.CriticalDisplacement);
+        if(rVariables.LoadingFlag) // Loading
+        {
+            rConstitutiveMatrix(0,0) = rVariables.YieldStress/((1.0-rVariables.DamageThreshold)*rVariables.CriticalDisplacement) * ( (1.0-mStateVariable)/mStateVariable-
+                                        StrainVector[0]*StrainVector[0]/(rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable) );
+            rConstitutiveMatrix(1,1) = rVariables.YieldStress/((1.0-rVariables.DamageThreshold)*rVariables.CriticalDisplacement) * ( (1.0-mStateVariable)/mStateVariable-
+                                        StrainVector[1]*StrainVector[1]/(rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable) );
 
-        rConstitutiveMatrix(0,0) = rVariables.YieldStress * aux_param;
-        rConstitutiveMatrix(1,1) = rConstitutiveMatrix(0,0);
-        rConstitutiveMatrix(0,1) = 0.0;
-        rConstitutiveMatrix(1,0) = 0.0;
+            rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
+                                        rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
+            rConstitutiveMatrix(1,0) = rConstitutiveMatrix(0,1);
+        }
+        else  // Unloading
+        {
+            rConstitutiveMatrix(0,0) = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold);
+            rConstitutiveMatrix(1,1) = rConstitutiveMatrix(0,0);
+
+            rConstitutiveMatrix(0,1) = 0.0;
+            rConstitutiveMatrix(1,0) = 0.0;
+        }
     }
     else // Contact between interfaces
     {
-        double aux_param_tangent = (1.0 - mStateVariable) / ((1.0 - rVariables.DamageThreshold) * mStateVariable * rVariables.CriticalDisplacementTangent);
-        double aux_param_no_damage = 1.0 / (rVariables.DamageThreshold * rVariables.CriticalDisplacement);
+        if(rVariables.LoadingFlag) // Loading
+        {
+            rConstitutiveMatrix(0,0) = rVariables.YieldStress/((1.0-rVariables.DamageThreshold)*rVariables.CriticalDisplacement) * ( (1.0-mStateVariable)/mStateVariable-
+                                        StrainVector[0]*StrainVector[0]/(rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable) );
+            rConstitutiveMatrix(1,1) = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
 
-		// Note: StrainVector[1] < 0.0, rStressVector[1] < 0.0 -> Compresive stress
-		double actual_friction_stress = fabs(StrainVector[0] * rVariables.YieldStressTangent * aux_param_tangent);
-		double max_friction_stress = fabs(rVariables.FrictionCoefficient * rVariables.YoungModulus * aux_param_no_damage * StrainVector[1]);
-
-		if (actual_friction_stress > max_friction_stress)
-		{
-			rConstitutiveMatrix(0,0) = rVariables.YieldStressTangent * aux_param_tangent;
-			rConstitutiveMatrix(1,1) = rVariables.YoungModulus * aux_param_no_damage;
-			rConstitutiveMatrix(0,1) = 0.0;
-			rConstitutiveMatrix(1,0) = 0.0;
-		}
-		else
-		{
-			double friction;
-		    if (max_friction_stress < fabs(StrainVector[0] * rVariables.YieldStressTangent * aux_param_no_damage))
-			{
-                friction = rVariables.YoungModulus * aux_param_no_damage * rVariables.FrictionCoefficient;
-			}
+            if(StrainVector[0] > 1.0e-20)
+            {
+                rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
+                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
+            }
+            else if(StrainVector[0] < -1.0e-20)
+            {
+                rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
+                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
+            }
             else
-			{
-				friction = rVariables.YieldStressTangent * aux_param_no_damage * fabs(StrainVector[0] / StrainVector[1]);
-			}
+            {
+                rConstitutiveMatrix(0,1) = 0.0;
+            }
 
-			rConstitutiveMatrix(0,0) = rVariables.YieldStressTangent * aux_param_tangent;
-			rConstitutiveMatrix(1,1) = rVariables.YoungModulus * aux_param_no_damage;
-
-			const double eps = std::numeric_limits<double>::epsilon();
-			if(StrainVector[0] > eps)
-			{
-				rConstitutiveMatrix(0,1) = -friction;
-			}
-			else if(StrainVector[0] < -eps)
-			{
-				rConstitutiveMatrix(0,1) = +friction;
-			}
-			else
-			{
-				rConstitutiveMatrix(0,1) = 0.0;
-			}
-			rConstitutiveMatrix(1,0) = 0.0;
-		}
+            rConstitutiveMatrix(1,0) = 0.0;
+        }
+        else  // Unloading
+        {
+            rConstitutiveMatrix(0,0) = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold);
+            rConstitutiveMatrix(1,1) = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
+            rConstitutiveMatrix(0,1) = 0.0;
+            rConstitutiveMatrix(1,0) = 0.0;
+        }
     }
 }
 
@@ -127,62 +127,29 @@ void JointBilinearCohesive2DLaw::ComputeStressVector(Vector& rStressVector,
 
     if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
     {
-        double aux_param = (1.0 - mStateVariable) / ((1.0 - rVariables.DamageThreshold) * mStateVariable * rVariables.CriticalDisplacement);
-
-        rStressVector[0] = rVariables.YieldStress * aux_param * StrainVector[0];
-        rStressVector[1] = rVariables.YieldStress * aux_param * StrainVector[1];
+        rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[0];
+        rStressVector[1] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[1];
     }
-
     else // Contact between interfaces
     {
-        double aux_param_tangent = (1.0 - mStateVariable) / ((1.0 - rVariables.DamageThreshold) * mStateVariable * rVariables.CriticalDisplacementTangent);
-        double aux_param_no_damage = 1.0 / (rVariables.DamageThreshold * rVariables.CriticalDisplacement);
+        // Note: StrainVector[1] < 0.0
+        rStressVector[1] = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement)*StrainVector[1];
 
-		rStressVector[1] = rVariables.YoungModulus * aux_param_no_damage * StrainVector[1];
-
-        // Note: StrainVector[1] < 0.0, rStressVector[1] < 0.0 -> Compresive stress
-		double actual_friction_stress = fabs(StrainVector[0] * rVariables.YieldStressTangent * aux_param_tangent);
-		double max_friction_stress = fabs(rVariables.FrictionCoefficient * rStressVector[1]);
-
-        if (actual_friction_stress > max_friction_stress)
-		{
-			rStressVector[0] = StrainVector[0] * rVariables.YieldStressTangent * aux_param_tangent;
-		}
-		else
-		{
-		    if (max_friction_stress < fabs(StrainVector[0] * rVariables.YieldStressTangent * aux_param_no_damage))
-			{
-			    double friction_stress;
-		        if (max_friction_stress < fabs(StrainVector[0] * rVariables.YieldStressTangent * aux_param_no_damage))
-			    {
-                    friction_stress = rVariables.FrictionCoefficient * rStressVector[1];
-			    }
-                else
-			    {
-				    friction_stress = rVariables.YieldStressTangent * aux_param_no_damage * fabs(StrainVector[0] / StrainVector[1]) * StrainVector[1];
-			    }
-				const double eps = std::numeric_limits<double>::epsilon();
-				if(StrainVector[0] > eps)
-				{
-					rStressVector[0] = rVariables.YieldStressTangent * aux_param_tangent * StrainVector[0] - friction_stress;
-				}
-				else if(StrainVector[0] < -eps)
-				{
-					rStressVector[0] = rVariables.YieldStressTangent * aux_param_tangent * StrainVector[0] + friction_stress;
-				}
-				else
-				{
-					rStressVector[0] = 0.0;
-				}
-			}
-			else
-			{
-				rStressVector[0] = StrainVector[0] * rVariables.YieldStressTangent * aux_param_no_damage;
-			}
-		}
+        if(StrainVector[0] > 0.0)
+        {
+            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
+        }
+        else if(StrainVector[0] < 0.0)
+        {
+            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
+        }
+        else
+        {
+            rStressVector[0] = 0.0;
+        }
     }
     // Add Uplift Pressure
-    rStressVector[1] -= mUpliftPressure;
+    rStressVector[1] += mUpliftPressure;
 }
 
 } // Namespace Kratos

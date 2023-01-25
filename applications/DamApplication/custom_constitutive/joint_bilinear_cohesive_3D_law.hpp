@@ -84,17 +84,13 @@ protected:
     struct ConstitutiveLawVariables
     {
         double CriticalDisplacement;
-        double CriticalDisplacementTangent;
         double DamageThreshold;
         double YieldStress;
         double YoungModulus;
         double PoissonCoefficient;
-        double FrictionCoefficient;
         double PenaltyStiffness;
         double MaxTensileStress;
         double MaxCompresiveStress;
-        double Cohesion;
-        double YieldStressTangent;
 
         Matrix CompressionMatrix;
         Matrix WeightMatrix;
