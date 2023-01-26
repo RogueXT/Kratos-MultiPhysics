@@ -277,12 +277,12 @@ void JointBilinearCohesive3DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
 
             rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
                                         rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
-            if(StrainVector[0] > 1.0e-20)
+            if(StrainVector[0] > 1.0e-15)
             {
                 rConstitutiveMatrix(0,2) = -rVariables.YieldStress*StrainVector[0]*StrainVector[2]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
             }
-            else if(StrainVector[0] < -1.0e-20)
+            else if(StrainVector[0] < -1.0e-15)
             {
                 rConstitutiveMatrix(0,2) = -rVariables.YieldStress*StrainVector[0]*StrainVector[2]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
@@ -291,12 +291,12 @@ void JointBilinearCohesive3DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
             {
                 rConstitutiveMatrix(0,2) = 0.0;
             }
-            if(StrainVector[1] > 1.0e-20)
+            if(StrainVector[1] > 1.0e-15)
             {
                 rConstitutiveMatrix(1,2) = -rVariables.YieldStress*StrainVector[1]*StrainVector[2]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
             }
-            else if(StrainVector[1] < -1.0e-20)
+            else if(StrainVector[1] < -1.0e-15)
             {
                 rConstitutiveMatrix(1,2) = -rVariables.YieldStress*StrainVector[1]*StrainVector[2]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
@@ -343,11 +343,11 @@ void JointBilinearCohesive3DLaw::ComputeStressVector(Vector& rStressVector,
         // Note: StrainVector[2] < 0.0
         rStressVector[2] = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement)*StrainVector[2];
 
-        if(StrainVector[0] > 1.0e-20)
+        if(StrainVector[0] > 1.0e-15)
         {
             rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
         }
-        else if(StrainVector[0] < -1.0e-20)
+        else if(StrainVector[0] < -1.0e-15)
         {
             rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
         }
@@ -356,11 +356,11 @@ void JointBilinearCohesive3DLaw::ComputeStressVector(Vector& rStressVector,
             rStressVector[0] = 0.0;
         }
 
-        if(StrainVector[1] > 1.0e-20)
+        if(StrainVector[1] > 1.0e-15)
         {
             rStressVector[1] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[1];
         }
-        else if(StrainVector[1] < -1.0e-20)
+        else if(StrainVector[1] < -1.0e-15)
         {
             rStressVector[1] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[1];
         }

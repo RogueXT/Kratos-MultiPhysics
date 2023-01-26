@@ -210,7 +210,7 @@ class DamMPIThermoMechanicSolver(dam_thermo_mechanic_solver.DamThermoMechanicSol
         self.main_model_part.ProcessInfo.SetValue(KratosStructural.RAYLEIGH_ALPHA, rayleigh_m)
         self.main_model_part.ProcessInfo.SetValue(KratosStructural.RAYLEIGH_BETA, rayleigh_k)
         if(solution_type == "Quasi-Static"):
-            if(rayleigh_m<1.0e-20 and rayleigh_k<1.0e-20):
+            if(rayleigh_m<1.0e-15 and rayleigh_k<1.0e-15):
                 scheme =  TrilinosApplication.TrilinosResidualBasedIncrementalUpdateStaticScheme()
             else:
                 scheme =  KratosDam.TrilinosIncrementalUpdateStaticDampedScheme()

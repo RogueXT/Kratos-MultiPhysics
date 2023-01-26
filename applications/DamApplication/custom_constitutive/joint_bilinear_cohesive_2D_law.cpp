@@ -90,12 +90,12 @@ void JointBilinearCohesive2DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
                                         StrainVector[0]*StrainVector[0]/(rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable) );
             rConstitutiveMatrix(1,1) = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
 
-            if(StrainVector[0] > 1.0e-20)
+            if(StrainVector[0] > 1.0e-15)
             {
                 rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
             }
-            else if(StrainVector[0] < -1.0e-20)
+            else if(StrainVector[0] < -1.0e-15)
             {
                 rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
                                             rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
@@ -135,11 +135,11 @@ void JointBilinearCohesive2DLaw::ComputeStressVector(Vector& rStressVector,
         // Note: StrainVector[1] < 0.0
         rStressVector[1] = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement)*StrainVector[1];
 
-        if(StrainVector[0] > 0.0)
+        if(StrainVector[0] > 1.0e-15)
         {
             rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
         }
-        else if(StrainVector[0] < 0.0)
+        else if(StrainVector[0] < -1.0e-15)
         {
             rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
         }
