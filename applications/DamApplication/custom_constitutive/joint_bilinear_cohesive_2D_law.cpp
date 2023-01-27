@@ -41,14 +41,14 @@ void JointBilinearCohesive2DLaw::ComputeEquivalentStrain(ConstitutiveLawVariable
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         rVariables.EquivalentStrain = std::sqrt(StrainVector[0]*StrainVector[0]+
                                                 StrainVector[1]*StrainVector[1])/rVariables.CriticalDisplacement;
 	}
 	else // Contact between interfaces
 	{
-        rVariables.EquivalentStrain = std::abs(StrainVector[0])/rVariables.CriticalDisplacement;
+        rVariables.EquivalentStrain = std::abs(StrainVector[1])/rVariables.CriticalDisplacement;
 	}
 }
 
@@ -60,7 +60,7 @@ void JointBilinearCohesive2DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         if(rVariables.LoadingFlag) // Loading
         {
@@ -93,12 +93,14 @@ void JointBilinearCohesive2DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
             if(StrainVector[0] > 1.0e-15)
             {
                 rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
-                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
+                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable ) -
+                                            rVariables.YoungModulus*rVariables.FrictionCoefficient/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
             }
             else if(StrainVector[0] < -1.0e-15)
             {
                 rConstitutiveMatrix(0,1) = -rVariables.YieldStress*StrainVector[0]*StrainVector[1]/( (1.0-rVariables.DamageThreshold)*
-                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable );
+                                            rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*rVariables.CriticalDisplacement*mStateVariable*mStateVariable*mStateVariable ) +
+                                            rVariables.YoungModulus*rVariables.FrictionCoefficient/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
             }
             else
             {
@@ -111,7 +113,18 @@ void JointBilinearCohesive2DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
         {
             rConstitutiveMatrix(0,0) = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold);
             rConstitutiveMatrix(1,1) = rVariables.YoungModulus/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
-            rConstitutiveMatrix(0,1) = 0.0;
+            if(StrainVector[0] > 1.0e-15)
+            {
+                rConstitutiveMatrix(0,1) = -rVariables.YoungModulus*rVariables.FrictionCoefficient/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
+            }
+            else if(StrainVector[0] < -1.0e-15)
+            {
+                rConstitutiveMatrix(0,1) = rVariables.YoungModulus*rVariables.FrictionCoefficient/(rVariables.DamageThreshold*rVariables.CriticalDisplacement);
+            }
+            else
+            {
+                rConstitutiveMatrix(0,1) = 0.0;
+            }
             rConstitutiveMatrix(1,0) = 0.0;
         }
     }
@@ -125,7 +138,7 @@ void JointBilinearCohesive2DLaw::ComputeStressVector(Vector& rStressVector,
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[0];
         rStressVector[1] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[1];
@@ -137,19 +150,19 @@ void JointBilinearCohesive2DLaw::ComputeStressVector(Vector& rStressVector,
 
         if(StrainVector[0] > 1.0e-15)
         {
-            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
+            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0] - rVariables.FrictionCoefficient*rStressVector[1];
         }
         else if(StrainVector[0] < -1.0e-15)
         {
-            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0];
+            rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold)*StrainVector[0] + rVariables.FrictionCoefficient*rStressVector[1];
         }
         else
         {
             rStressVector[0] = 0.0;
         }
+        // Add Uplift Pressure
+        rStressVector[1] += mUpliftPressure;
     }
-    // Add Uplift Pressure
-    rStressVector[1] += mUpliftPressure;
 }
 
 } // Namespace Kratos

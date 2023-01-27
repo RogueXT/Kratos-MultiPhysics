@@ -58,6 +58,11 @@ int JointBilinearCohesive3DLaw::Check(const Properties& rMaterialProperties,cons
         KRATOS_ERROR << "YIELD_STRESS not defined" << std::endl;
     }
 
+    if(rMaterialProperties.Has(FRICTION_COEFFICIENT)) {
+        KRATOS_ERROR_IF(rMaterialProperties[FRICTION_COEFFICIENT] < 0.0) << "FRICTION_COEFFICIENT has an invalid value " << std::endl;
+    } else {
+        KRATOS_ERROR << "FRICTION_COEFFICIENT not defined" << std::endl;
+    }
     if(rMaterialProperties.Has(DAMAGE_THRESHOLD)) {
         const double& damage_threshold = rMaterialProperties[DAMAGE_THRESHOLD];
         const bool check = static_cast<bool>((damage_threshold <= 0.0) || (damage_threshold > 1.0));
@@ -185,6 +190,7 @@ void JointBilinearCohesive3DLaw::InitializeConstitutiveLawVariables(Constitutive
     rVariables.YieldStress = MaterialProperties[YIELD_STRESS];
 
     rVariables.YoungModulus = MaterialProperties[YOUNG_MODULUS];
+    rVariables.FrictionCoefficient = MaterialProperties[FRICTION_COEFFICIENT];
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -194,7 +200,7 @@ void JointBilinearCohesive3DLaw::ComputeEquivalentStrain(ConstitutiveLawVariable
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         rVariables.EquivalentStrain = std::sqrt(StrainVector[0]*StrainVector[0]+
                                                 StrainVector[1]*StrainVector[1]+
@@ -230,7 +236,7 @@ void JointBilinearCohesive3DLaw::ComputeConstitutiveMatrix(Matrix& rConstitutive
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         if(rVariables.LoadingFlag) // Loading
         {
@@ -332,7 +338,7 @@ void JointBilinearCohesive3DLaw::ComputeStressVector(Vector& rStressVector,
 {
     const Vector& StrainVector = rValues.GetStrainVector();
 
-    if( rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY) ) // No contact between interfaces
+    if(rValues.GetOptions().Is(ConstitutiveLaw::COMPUTE_STRAIN_ENERGY)) // No contact between interfaces
     {
         rStressVector[0] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[0];
         rStressVector[1] = rVariables.YieldStress/(rVariables.CriticalDisplacement*mStateVariable)*(1.0-mStateVariable)/(1.0-rVariables.DamageThreshold) * StrainVector[1];
