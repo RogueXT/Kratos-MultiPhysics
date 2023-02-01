@@ -180,6 +180,10 @@ void KratosDamApplication::Register()
     Serializer::Register("ThermalModifiedMisesNonlocalDamagePlaneStrain2DLaw",mThermalModifiedMisesNonlocalDamagePlaneStrain2DLaw);
     Serializer::Register("ThermalModifiedMisesNonlocalDamagePlaneStress2DLaw",mThermalModifiedMisesNonlocalDamagePlaneStress2DLaw);
 
+    Serializer::Register("JointCohesionDriven3DLaw",mJointCohesionDriven3DLaw);
+    Serializer::Register("JointCohesionDriven2DLaw",mJointCohesionDriven2DLaw);
+    Serializer::Register("JointStressDriven3DLaw",mJointStressDriven3DLaw);
+    Serializer::Register("JointStressDriven2DLaw",mJointStressDriven2DLaw);
     Serializer::Register("JointBilinearCohesive3DLaw",mJointBilinearCohesive3DLaw);
     Serializer::Register("JointBilinearCohesive2DLaw",mJointBilinearCohesive2DLaw);
 
@@ -222,8 +226,9 @@ void KratosDamApplication::Register()
     KRATOS_REGISTER_VARIABLE(COMPUTE_CONSISTENT_MASS_MATRIX)
 
     // Joints
-    KRATOS_REGISTER_VARIABLE( CRITICAL_DISPLACEMENT_TANGENT )
-    KRATOS_REGISTER_VARIABLE( YIELD_STRESS_TANGENT )
+    KRATOS_REGISTER_VARIABLE( MAX_COMPRESSIVE_STRESS )
+    KRATOS_REGISTER_VARIABLE( MAX_TENSILE_STRESS )
+    KRATOS_REGISTER_VARIABLE( COHESION )
 
     // Uplift
     KRATOS_REGISTER_VARIABLE( UPLIFT_PRESSURE )
