@@ -186,6 +186,8 @@ void KratosDamApplication::Register()
     Serializer::Register("JointStressDriven2DLaw",mJointStressDriven2DLaw);
     Serializer::Register("JointBilinearCohesive3DLaw",mJointBilinearCohesive3DLaw);
     Serializer::Register("JointBilinearCohesive2DLaw",mJointBilinearCohesive2DLaw);
+    Serializer::Register("JointExponentialCohesive3DLaw",mJointExponentialCohesive3DLaw);
+    Serializer::Register("JointExponentialCohesive2DLaw",mJointExponentialCohesive2DLaw);
 
     //Register Variables
     KRATOS_REGISTER_VARIABLE( TIME_UNIT_CONVERTER )

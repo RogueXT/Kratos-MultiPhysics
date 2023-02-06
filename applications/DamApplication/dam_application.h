@@ -63,6 +63,8 @@
 #include "custom_constitutive/joint_stress_driven_2D_law.hpp"
 #include "custom_constitutive/joint_bilinear_cohesive_3D_law.hpp"
 #include "custom_constitutive/joint_bilinear_cohesive_2D_law.hpp"
+#include "custom_constitutive/joint_exponential_cohesive_3D_law.hpp"
+#include "custom_constitutive/joint_exponential_cohesive_2D_law.hpp"
 
 namespace Kratos
 {
@@ -197,6 +199,8 @@ const JointStressDriven3DLaw mJointStressDriven3DLaw;
 const JointStressDriven2DLaw mJointStressDriven2DLaw;
 const JointBilinearCohesive3DLaw mJointBilinearCohesive3DLaw;
 const JointBilinearCohesive2DLaw mJointBilinearCohesive2DLaw;
+const JointExponentialCohesive3DLaw mJointExponentialCohesive3DLaw;
+const JointExponentialCohesive2DLaw mJointExponentialCohesive2DLaw;
 
 // Assignment operator.
 KratosDamApplication& operator=(KratosDamApplication const& rOther);
