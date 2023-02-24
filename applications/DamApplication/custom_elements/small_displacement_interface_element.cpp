@@ -584,6 +584,33 @@ void SmallDisplacementInterfaceElement<TDim,TNumNodes>::SetValuesOnIntegrationPo
 //----------------------------------------------------------------------------------------
 
 template< unsigned int TDim, unsigned int TNumNodes >
+void SmallDisplacementInterfaceElement<TDim,TNumNodes>::CalculateOnIntegrationPoints(const Variable<double>& rVariable,
+                                                                                     std::vector<double>& rOutput,
+                                                                                     const ProcessInfo& rCurrentProcessInfo)
+{
+    KRATOS_TRY
+
+    if(rVariable == STATE_VARIABLE)
+    {
+        if ( rOutput.size() != mConstitutiveLawVector.size() )
+            rOutput.resize(mConstitutiveLawVector.size());
+
+        for ( unsigned int i = 0;  i < mConstitutiveLawVector.size(); i++ )
+            rOutput[i] = mConstitutiveLawVector[i]->GetValue( rVariable, rOutput[i] );
+    }
+    else if(rVariable == UPLIFT_PRESSURE)
+    {
+        if ( rOutput.size() != mConstitutiveLawVector.size() )
+            rOutput.resize(mConstitutiveLawVector.size());
+
+        for ( unsigned int i = 0;  i < mConstitutiveLawVector.size(); i++ )
+            rOutput[i] = mConstitutiveLawVector[i]->GetValue( rVariable, rOutput[i] );
+    }
+
+    KRATOS_CATCH( "" )
+}
+
+template< unsigned int TDim, unsigned int TNumNodes >
 void SmallDisplacementInterfaceElement<TDim,TNumNodes>::CalculateOnIntegrationPoints(const Variable<array_1d<double,3>>& rVariable,
                                                                                      std::vector<array_1d<double,3>>& rOutput,
                                                                                      const ProcessInfo& rCurrentProcessInfo)
@@ -1114,7 +1141,7 @@ void SmallDisplacementInterfaceElement<2,4>::CalculateRotationMatrix(BoundedMatr
     rRotationMatrix(0,0) = Vx[0];
     rRotationMatrix(0,1) = Vx[1];
 
-    // NOTE. Assuming that the nodes in quadrilateral_interface_2d_4 are 
+    // NOTE. Assuming that the nodes in quadrilateral_interface_2d_4 are
     // ordered clockwise (GiD does so), the rotation matrix is build like follows:
     rRotationMatrix(1,0) = Vx[1];
     rRotationMatrix(1,1) = -Vx[0];
@@ -1303,8 +1330,7 @@ void SmallDisplacementInterfaceElement<3,8>::CalculateIntegrationCoefficient(dou
     rIntegrationCoefficient = weight * detJ;
 }
 
-//----------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 template< unsigned int TDim, unsigned int TNumNodes >
 void SmallDisplacementInterfaceElement<TDim,TNumNodes>::CalculateAndAddLHS(MatrixType& rLeftHandSideMatrix, ElementVariables& rVariables)
