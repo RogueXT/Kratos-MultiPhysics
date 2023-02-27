@@ -48,15 +48,8 @@ class DamAnalysis(AnalysisStage):
         self.SetSolver()
 
     def DefineParallelType(self):
-        #self.parallel_type = self.project_parameters["problem_data"]["parallel_type"].GetString()
-        parallel=KratosMultiphysics.OpenMPUtils()
-        parallel.SetNumThreads(self.project_parameters["problem_data"]["number_of_threads"].GetInt())
-        #if self.parallel_type == "MPI":
-            #import KratosMultiphysics.mpi as KratosMPI
-            #import KratosMultiphysics.TrilinosApplication as TrilinosApplication
-            #print("MPI parallel configuration. OMP_NUM_THREADS =",parallel.GetNumThreads())
-        #else:
-        print("OpenMP parallel configuration. OMP_NUM_THREADS =",parallel.GetNumThreads())
+        KratosMultiphysics.ParallelUtilities.SetNumThreads(self.project_parameters["problem_data"]["number_of_threads"].GetInt())
+        print("OpenMP parallel configuration. OMP_NUM_THREADS =",KratosMultiphysics.ParallelUtilities.GetNumThreads())
 
     def DefineVariables(self):
         self.domain_size = self.project_parameters["problem_data"]["domain_size"].GetInt()
