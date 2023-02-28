@@ -118,12 +118,7 @@ namespace EntitiesUtilities
         block_for_each(
             GetEntities<TEntityType>(rModelPart),
             [&r_current_process_info](TEntityType& rEntity){
-                // Detect if the entity is active or not. If the user did not make any choice the entity
-                // It is active by default
-                const bool entity_is_active = (rEntity.IsDefined(ACTIVE)) ? rEntity.Is(ACTIVE) : true;
-                if (entity_is_active) {
-                    rEntity.InitializeSolutionStep(r_current_process_info);
-                }
+                rEntity.InitializeSolutionStep(r_current_process_info);
             }
         );
 
@@ -146,12 +141,7 @@ namespace EntitiesUtilities
         block_for_each(
             GetEntities<TEntityType>(rModelPart),
             [&r_current_process_info](TEntityType& rEntity){
-                // Detect if the entity is active or not. If the user did not make any choice the entity
-                // It is active by default
-                const bool entity_is_active = (rEntity.IsDefined(ACTIVE)) ? rEntity.Is(ACTIVE) : true;
-                if (entity_is_active) {
-                    rEntity.FinalizeSolutionStep(r_current_process_info);
-                }
+                rEntity.FinalizeSolutionStep(r_current_process_info);
             }
         );
 
@@ -174,12 +164,7 @@ namespace EntitiesUtilities
         block_for_each(
             GetEntities<TEntityType>(rModelPart),
             [&r_current_process_info](TEntityType& rEntity){
-                // Detect if the entity is active or not. If the user did not make any choice the entity
-                // It is active by default
-                const bool entity_is_active = (rEntity.IsDefined(ACTIVE)) ? rEntity.Is(ACTIVE) : true;
-                if (entity_is_active) {
-                    rEntity.InitializeNonLinearIteration(r_current_process_info);
-                }
+                rEntity.InitializeNonLinearIteration(r_current_process_info);
             }
         );
 
@@ -202,12 +187,7 @@ namespace EntitiesUtilities
         block_for_each(
             GetEntities<TEntityType>(rModelPart),
             [&r_current_process_info](TEntityType& rEntity){
-                // Detect if the entity is active or not. If the user did not make any choice the entity
-                // It is active by default
-                const bool entity_is_active = (rEntity.IsDefined(ACTIVE)) ? rEntity.Is(ACTIVE) : true;
-                if (entity_is_active) {
-                    rEntity.FinalizeNonLinearIteration(r_current_process_info);
-                }
+                rEntity.FinalizeNonLinearIteration(r_current_process_info);
             }
         );
 
