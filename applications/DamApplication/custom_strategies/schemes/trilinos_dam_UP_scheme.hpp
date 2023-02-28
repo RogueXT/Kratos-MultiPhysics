@@ -79,28 +79,16 @@ public:
 
         Dx.Comm().Barrier();
 
-        // Update of displacement (by DOF)
-        OpenMPUtils::PartitionVector DofPartition;
-        OpenMPUtils::DivideInPartitions(rDofSet.size(), NumThreads, DofPartition);
-
-        const int ndof = static_cast<int>(rDofSet.size());
-        typename DofsArrayType::iterator DofBegin = rDofSet.begin();
-
-        #pragma omp parallel for firstprivate(DofBegin)
-        for(int i = 0;  i < ndof; i++)
-        {
-            typename DofsArrayType::iterator itDof = DofBegin + i;
-            int global_id = itDof->EquationId();
-
-            if(global_id < system_size)
+        // Initialize
+        block_for_each(rDofSet, [&Dx](auto& dof)
             {
-                if (itDof->IsFree() )
+                if (dof.IsFree())
                 {
-                    const double auxDx = temp[mpDofImporter->TargetMap().LID(global_id)];
-                    itDof->GetSolutionStepValue() += auxDx;
+                    dof.GetSolutionStepValue() += TSparseSpace::GetValue(Dx, dof.EquationId());
                 }
+
             }
-        }
+        );
 
         this->UpdateVariablesDerivatives(r_model_part);
 
