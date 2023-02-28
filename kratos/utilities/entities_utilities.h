@@ -90,12 +90,7 @@ namespace EntitiesUtilities
             r_entities_array,
             [&r_current_process_info](TEntityType& rEntity)
             {
-                // Detect if the entity is active or not. If the user did not make any choice the entity
-                // It is active by default
-                const bool entity_is_active = (rEntity.IsDefined(ACTIVE)) ? rEntity.Is(ACTIVE) : true;
-                if (entity_is_active) {
-                    rEntity.Initialize(r_current_process_info);
-                }
+                rEntity.Initialize(r_current_process_info);
             }
         );
 
