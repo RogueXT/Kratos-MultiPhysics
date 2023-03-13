@@ -4,15 +4,14 @@
 //   _|\_\_|  \__,_|\__|\___/ ____/
 //                   Multi-Physics
 //
-//  License:		 BSD License
-//					 Kratos default license: kratos/license.txt
+//  License:         BSD License
+//                   Kratos default license: kratos/license.txt
 //
 //  Main authors:    Vicente Mataix Ferrandiz
 //                   Philipp Bucher (https://github.com/philbucher)
 //
 
-#if !defined(KRATOS_ENTITIES_UTILITIES)
-#define KRATOS_ENTITIES_UTILITIES
+#pragma once
 
 // System includes
 
@@ -193,4 +192,3 @@ namespace EntitiesUtilities
 
 }; // namespace EntitiesUtilities
 }  // namespace Kratos
-#endif /* KRATOS_ENTITIES_UTILITIES defined */
