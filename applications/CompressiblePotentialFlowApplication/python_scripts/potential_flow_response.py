@@ -1,6 +1,8 @@
 import KratosMultiphysics
 from KratosMultiphysics import Parameters, Logger
 import KratosMultiphysics.CompressiblePotentialFlowApplication as KCPFApp
+import importlib
+from KratosMultiphysics.RomApplication.rom_analysis import CreateRomAnalysisInstance
 from KratosMultiphysics.response_functions.response_function_interface import ResponseFunctionInterface
 import KratosMultiphysics.CompressiblePotentialFlowApplication.potential_flow_analysis as potential_flow_analysis
 import time as timer
@@ -32,16 +34,29 @@ class AdjointResponseFunction(ResponseFunctionInterface):
 
         self.primal_model_part = _GetModelPart(model, primal_parameters["solver_settings"])
 
-        self.primal_analysis = potential_flow_analysis.PotentialFlowAnalysis(model, primal_parameters)
-
         self.primal_data_transfer_with_python = self.response_settings["primal_data_transfer_with_python"].GetBool()
 
-        # Create the adjoint solver
         adjoint_parameters = self._CheckParameters(self._GetAdjointParameters())
+
         adjoint_model = KratosMultiphysics.Model()
+        
         self.adjoint_model_part = _GetModelPart(adjoint_model, adjoint_parameters["solver_settings"])
 
-        self.adjoint_analysis = potential_flow_analysis.PotentialFlowAnalysis(adjoint_model, adjoint_parameters)
+        if self.response_settings["use_rom/hrom"].GetBool():
+            analysis_stage_module_name = primal_parameters["analysis_stage"].GetString()
+            analysis_stage_class_name = analysis_stage_module_name.split('.')[-1]
+            analysis_stage_class_name = ''.join(x.title() for x in analysis_stage_class_name.split('_'))
+            analysis_stage_module = importlib.import_module(analysis_stage_module_name)
+            analysis_stage_class = getattr(analysis_stage_module, analysis_stage_class_name)
+
+            self.primal_analysis = CreateRomAnalysisInstance(analysis_stage_class, model, primal_parameters)  
+
+            self.adjoint_analysis = CreateRomAnalysisInstance(analysis_stage_class, adjoint_model, adjoint_parameters)
+
+        else:
+            self.primal_analysis = potential_flow_analysis.PotentialFlowAnalysis(model, primal_parameters)
+
+            self.adjoint_analysis = potential_flow_analysis.PotentialFlowAnalysis(adjoint_model, adjoint_parameters)
 
         self.primal_state_variables = [KCPFApp.VELOCITY_POTENTIAL, KCPFApp.AUXILIARY_VELOCITY_POTENTIAL]
 
@@ -142,7 +157,7 @@ class AdjointResponseFunction(ResponseFunctionInterface):
             wrn_msg += 'The solver setting has been set to True'
             Logger.PrintWarning(self._GetLabel(), wrn_msg)
         for subproc_keys, subproc_values in parameters["processes"].items():
-            for process  in subproc_values.values():
+            for process  in subproc_values:
                 if "wake" in process["python_module"].GetString():
                     if not process["Parameters"].Has("compute_wake_at_each_step") or not process["Parameters"]["compute_wake_at_each_step"].GetBool():
                         if not process["Parameters"].Has("compute_wake_at_each_step"):
