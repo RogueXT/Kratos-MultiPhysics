@@ -26,7 +26,7 @@ export KRATOS_APP_DIR="${KRATOS_SOURCE}/applications"
 # export KRATOS_INSTALL_PYTHON_USING_LINKS=ON
 
 # Set basic configuration
-export KRATOS_BUILD_TYPE=${KRATOS_BUILD_TYPE:-"release"}
+export KRATOS_BUILD_TYPE=${KRATOS_BUILD_TYPE:-"Release"}
 export PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE:-"/usr/bin/python3"}
 
 # Set applications to compile
@@ -34,14 +34,11 @@ export KRATOS_APPLICATIONS=
 add_app ${KRATOS_APP_DIR}/LinearSolversApplication
 add_app ${KRATOS_APP_DIR}/StructuralMechanicsApplication
 add_app ${KRATOS_APP_DIR}/FluidDynamicsApplication
-add_app ${KRATOS_APP_DIR}/ShapeOptimizationApplication
-add_app ${KRATOS_APP_DIR}/CompressiblePotentialFlowApplication
-add_app ${KRATOS_APP_DIR}/MappingApplication
 add_app ${KRATOS_APP_DIR}/RomApplication
+add_app ${KRATOS_APP_DIR}/CompressiblePotentialFlowApplication
+add_app ${KRATOS_APP_DIR}/ShapeOptimizationApplication
 add_app ${KRATOS_APP_DIR}/MeshMovingApplication
 add_app ${KRATOS_APP_DIR}/HDF5Application
-add_app ${KRATOS_APP_DIR}/MeshingApplication
-add_app ${KRATOS_APP_DIR}/ConvectionDiffusionApplication
 
 # Clean
 clear

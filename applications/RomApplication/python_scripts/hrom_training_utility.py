@@ -54,7 +54,7 @@ class HRomTrainingUtility(object):
 
         # Generate the matrix of residuals
         if self.echo_level > 0 : KratosMultiphysics.Logger.PrintInfo("HRomTrainingUtility","Generating matrix of residuals.")
-        res_mat = self.__rom_residuals_utility.GetResiduals()
+        res_mat = self.__rom_residuals_utility.GetProjectedResidualsOntoPhi()
         np_res_mat = np.array(res_mat, copy=False)
         self.time_step_residual_matrix_container.append(np_res_mat)
 
