@@ -92,6 +92,8 @@ class ConstructionUtility
         mMechanicalLastCondition = mrMechanicalModelPart.GetMesh(0).Conditions().size();
         mThermalLastCondition = mrThermalModelPart.GetMesh(0).Conditions().size();
 
+        const ProcessInfo& r_current_process_info = mrMechanicalModelPart.GetProcessInfo();
+
         if (nelements != 0)
         {
             ModelPart::ElementsContainerType::iterator el_begin = mrMechanicalModelPart.ElementsBegin();
@@ -99,10 +101,12 @@ class ConstructionUtility
 
             block_for_each(mrMechanicalModelPart.Elements(), [&](auto& rMechanicalElement){
                 rMechanicalElement.Set(ACTIVE, false);
+                rMechanicalElement.Initialize(r_current_process_info);
             });
 
             block_for_each(mrThermalModelPart.Elements(), [&](auto& rThermalElement){
                 rThermalElement.Set(ACTIVE, false);
+                rThermalElement.Initialize(r_current_process_info);
             });
 
             // Same nodes for both computing model part
