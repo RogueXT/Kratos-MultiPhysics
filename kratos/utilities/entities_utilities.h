@@ -87,9 +87,11 @@ namespace EntitiesUtilities
         // Initialize
         block_for_each(
             r_entities_array,
-            [&r_current_process_info](TEntityType& rEntity)
-            {
-                rEntity.Initialize(r_current_process_info);
+            [&r_current_process_info](TEntityType& rEntity) {
+                // If the entity is active
+                if (rEntity.IsActive()) {
+                    rEntity.Initialize(r_current_process_info);
+                }
             }
         );
 
