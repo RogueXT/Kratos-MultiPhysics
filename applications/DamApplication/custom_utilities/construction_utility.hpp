@@ -106,7 +106,6 @@ class ConstructionUtility
 
             block_for_each(mrThermalModelPart.Elements(), [&](auto& rThermalElement){
                 rThermalElement.Set(ACTIVE, false);
-                rThermalElement.Initialize(r_current_process_info);
             });
 
             // Same nodes for both computing model part
